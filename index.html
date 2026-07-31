@@ -1,0 +1,629 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#111827">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Evral Dağıtım">
+<title>Evral Dağıtım</title>
+
+<!-- PWA Manifest & App Icons (Inline Data-URL) -->
+<link rel="manifest" id="manifestPlaceholder">
+<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🍰</text></svg>">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🍰</text></svg>">
+
+<style>
+:root{
+  --bg:#f4f6f8;--card:#fff;--card-sub:#f8fafc;--text:#17202a;--muted:#667085;--line:#e4e7ec;
+  --primary:#111827;--primary2:#1f2937;--green:#15803d;--greenbg:#dcfce7;
+  --red:#b42318;--redbg:#fee4e2;--orange:#b54708;--orangebg:#ffead5;
+  --shadow:0 3px 14px rgba(16,24,40,.07);--radius:16px
+}
+html.dark{
+  --bg:#0f1115;--card:#181b21;--card-sub:#22262e;--text:#f3f4f6;--muted:#a3aab5;--line:#30343c;
+  --primary:#f3f4f6;--primary2:#e5e7eb;--green:#22c55e;--greenbg:#12351f;
+  --red:#f87171;--redbg:#3a1717;--orange:#fb923c;--orangebg:#3a2414;
+  --shadow:0 3px 16px rgba(0,0,0,.25)
+}
+
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+body{min-height:100vh;padding-bottom:90px}
+button,input,select{font:inherit}
+button{cursor:pointer}
+.app{width:min(100%,980px);margin:auto}
+
+/* Header & Nav */
+header{position:sticky;top:0;z-index:20;background:var(--card);backdrop-filter:blur(12px);border-bottom:1px solid var(--line);padding:14px 16px}
+html.dark header, html.dark .bottom-nav{background:rgba(24,27,33,.96)}
+.head{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.brand{font-size:21px;font-weight:850}
+.date{font-size:13px;color:var(--muted);margin-top:2px}
+.header-actions{display:flex;gap:8px}
+.iconbtn{width:44px;height:44px;border:1px solid var(--line);background:var(--card);color:var(--text);border-radius:12px;font-size:20px}
+
+main{padding:16px}
+.screen{display:none}.screen.active{display:block}
+h1{font-size:25px;margin:4px 0 14px}
+h2{font-size:18px;margin:0 0 12px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px;margin-bottom:14px}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.field{margin-bottom:12px}
+label{display:block;font-size:13px;font-weight:750;margin-bottom:6px}
+
+/* Input & Select */
+input,select{width:100%;min-height:48px;border:1px solid var(--line);border-radius:12px;padding:10px 12px;background:var(--card);color:var(--text);outline:none}
+input:focus,select:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(100,116,139,.2)}
+html.dark input,html.dark select{background:#111318;color:var(--text);border-color:#3b4049}
+
+/* Buttons */
+.btn{border:0;border-radius:12px;min-height:48px;padding:11px 15px;font-weight:800;display:inline-flex;align-items:center;justify-content:center;text-decoration:none}
+.btn.primary{background:var(--primary);color:var(--bg)}
+.btn.secondary{background:var(--card-sub);color:var(--text);border:1px solid var(--line)}
+.btn.green{background:var(--green);color:#fff}
+.btn.danger{background:var(--red);color:#fff}
+.btn.small{min-height:40px;padding:8px 11px;font-size:13px}
+.full{width:100%}
+
+html.dark .btn.primary{background:#f3f4f6;color:#111827}
+html.dark .btn.secondary{background:#22262e;color:var(--text);border-color:var(--line)}
+
+.firm-buttons{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.firm-buttons button{min-height:52px;border:1px solid var(--line);background:var(--card);color:var(--text);border-radius:12px;font-weight:800}
+.firm-buttons button.selected{background:var(--primary);color:var(--bg);border-color:var(--primary)}
+
+.products{display:flex;flex-direction:column;gap:8px}
+.product-row{display:grid;grid-template-columns:1fr 110px 42px;gap:8px;align-items:center}
+.remove{width:42px;height:42px;border:1px solid var(--line);border-radius:10px;background:var(--card);color:var(--red);font-size:19px}
+
+.payment-options{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.pay-choice{min-height:48px;border:1px solid var(--line);border-radius:12px;background:var(--card);color:var(--text);font-weight:800}
+.pay-choice.selected{background:var(--primary);color:var(--bg)}
+
+/* Cards & Badges */
+.stop-card{position:relative}
+.stop-top{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
+.stop-name{font-size:18px;font-weight:850}
+.badge{display:inline-flex;align-items:center;border-radius:999px;padding:5px 9px;font-size:11px;font-weight:800;background:var(--card-sub);color:var(--muted);white-space:nowrap}
+.badge.done{background:var(--greenbg);color:var(--green)}
+.badge.due{background:var(--redbg);color:var(--red)}
+.meta{font-size:13px;color:var(--muted);margin-top:4px}
+.product-summary{margin:12px 0;padding-top:10px;border-top:1px solid var(--line)}
+.product-line{display:flex;justify-content:space-between;gap:10px;font-size:14px;padding:4px 0}
+.stop-actions{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+
+/* Stats */
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px}
+.stat b{display:block;font-size:20px}.stat span{font-size:11px;color:var(--muted)}
+.empty{text-align:center;padding:34px 12px;color:var(--muted)}
+
+/* Navigation */
+.bottom-nav{position:fixed;left:0;right:0;bottom:0;z-index:30;background:var(--card);border-top:1px solid var(--line);padding:8px max(10px,env(safe-area-inset-left)) calc(8px + env(safe-area-inset-bottom));display:flex;justify-content:center}
+.nav-inner{width:min(100%,720px);display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.nav-btn{border:0;background:transparent;border-radius:12px;min-height:54px;color:var(--muted);font-weight:800}
+.nav-btn.active{background:var(--card-sub);color:var(--text)}
+.nav-btn span{display:block;font-size:11px;margin-top:2px}
+
+/* Pop-up Modalleri & Confirm Kutuları */
+.confirm-bg{position:fixed;inset:0;background:rgba(0,0,0,.65);display:none;align-items:center;justify-content:center;z-index:90;padding:16px;backdrop-filter:blur(4px)}
+.confirm-bg.open{display:flex}
+.confirm-box{width:min(100%,420px);background:var(--card);color:var(--text);border:1px solid var(--line);border-radius:20px;padding:20px;box-shadow:0 15px 50px rgba(0,0,0,.3)}
+.confirm-box h2{margin:0 0 8px;font-size:20px}.confirm-box p{margin:0 0 18px;color:var(--muted);font-size:14px;line-height:1.5}
+.confirm-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:flex-end;justify-content:center;z-index:50;backdrop-filter:blur(3px)}
+.modal-bg.open{display:flex}
+.modal{background:var(--card);color:var(--text);width:min(100%,620px);max-height:92vh;overflow:auto;border-radius:20px 20px 0 0;padding:18px 16px calc(20px + env(safe-area-inset-bottom));border:1px solid var(--line)}
+.modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.close{border:0;background:var(--card-sub);color:var(--text);border-radius:10px;width:40px;height:40px;font-size:20px}
+.alert{padding:12px;border-radius:12px;background:var(--orangebg);color:var(--orange);font-size:13px;margin-bottom:12px}
+
+/* Özel Toast Bildirimi */
+.toast-container{position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:100;pointer-events:none;display:flex;flex-direction:column;gap:8px;width:min(90%,400px)}
+.toast{background:var(--primary);color:var(--bg);padding:12px 16px;border-radius:12px;font-weight:700;font-size:14px;box-shadow:0 10px 30px rgba(0,0,0,.25);display:flex;align-items:center;gap:8px;opacity:0;transform:translateY(-20px);transition:all .3s ease}
+.toast.show{opacity:1;transform:translateY(0)}
+
+.debt-row{padding:14px 0;border-bottom:1px solid var(--line)}
+.debt-row:last-child{border-bottom:0}
+.debt-head{display:flex;justify-content:space-between;gap:10px;font-weight:850}
+.debt-sub{font-size:12px;color:var(--muted);margin:4px 0 9px}
+.total-box{padding:15px;border-radius:14px;background:var(--primary);color:var(--bg);margin-bottom:14px}
+.total-box small{opacity:.8}.total-box strong{display:block;font-size:25px;margin-top:3px}
+.toolbar{display:flex;gap:8px;align-items:center;justify-content:space-between;margin-bottom:12px}
+.toolbar select{width:auto;min-width:150px}
+.hidden{display:none!important}
+footer-note{display:block;text-align:center;color:var(--muted);font-size:11px;margin-top:18px}
+
+@media(max-width:620px){
+  main{padding:12px}
+  .grid{grid-template-columns:1fr}
+  .product-row{grid-template-columns:1fr 95px 42px}
+  .firm-buttons{grid-template-columns:1fr}
+  .stats{grid-template-columns:1fr 1fr}.stats .stat:last-child{grid-column:1/-1}
+  h1{font-size:22px}
+}
+@media(min-width:760px){
+  .modal-bg{align-items:center}.modal{border-radius:20px}
+  body{padding-bottom:20px}.bottom-nav{position:static;border:0;background:transparent;padding:0 16px 20px}
+  .nav-inner{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:5px}
+}
+</style>
+</head>
+<body>
+<div class="app">
+<header>
+  <div class="head">
+    <div><div class="brand">🍰 Evral Dağıtım</div><div class="date" id="todayText"></div></div>
+    <div class="header-actions">
+      <button class="iconbtn" id="themeBtn" onclick="toggleTheme()" title="Koyu tema">🌙</button>
+      <button class="iconbtn" onclick="exportBackup()" title="Yedek al">⬇️</button>
+      <button class="iconbtn" onclick="document.getElementById('importFile').click()" title="Yedek yükle">⬆️</button>
+      <input id="importFile" type="file" accept=".json,application/json" hidden onchange="importBackup(event)">
+    </div>
+  </div>
+</header>
+
+<main>
+  <section id="screenToday" class="screen active">
+    <h1>Bugünkü dağıtım</h1>
+    <div class="stats">
+      <div class="stat"><b id="statStops">0</b><span>Durak</span></div>
+      <div class="stat"><b id="statDone">0</b><span>Teslim edildi</span></div>
+      <div class="stat"><b id="statDue">₺0</b><span>Toplam kalan</span></div>
+    </div>
+    <div id="todayList"></div>
+    <button class="btn primary full" onclick="openNewStop()">＋ Yeni durak ekle</button>
+    <footer-note>Veriler bu cihazda saklanır. İnternet gerekmez.</footer-note>
+  </section>
+
+  <section id="screenDebts" class="screen">
+    <h1>Alacaklar</h1>
+    <div class="total-box"><small>Tüm geçmişten toplam kalan</small><strong id="debtTotal">₺0</strong></div>
+    <div id="debtList"></div>
+    <footer-note>Önceki günlerden kalanlar burada otomatik birikir.</footer-note>
+  </section>
+
+  <section id="screenHistory" class="screen">
+    <h1>Geçmiş</h1>
+    <div class="toolbar">
+      <span class="meta">Eski teslimatlar</span>
+      <select id="historyFilter" onchange="renderHistory()"></select>
+    </div>
+    <div id="historyList"></div>
+  </section>
+</main>
+
+<nav class="bottom-nav">
+  <div class="nav-inner">
+    <button class="nav-btn active" data-screen="Today" onclick="showScreen('Today')">🏠<span>Bugün</span></button>
+    <button class="nav-btn" data-screen="Debts" onclick="showScreen('Debts')">💰<span>Alacaklar</span></button>
+    <button class="nav-btn" data-screen="History" onclick="showScreen('History')">🗂️<span>Geçmiş</span></button>
+  </div>
+</nav>
+</div>
+
+<!-- Modal Alanı -->
+<div class="modal-bg" id="modalBg" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <div class="modal-head"><h2 id="modalTitle">Yeni durak</h2><button class="close" onclick="closeModal()">×</button></div>
+    <div id="modalBody"></div>
+  </div>
+</div>
+
+<!-- Özel Confirm Pop-up -->
+<div class="confirm-bg" id="confirmBg" onclick="if(event.target===this)closeConfirm()">
+  <div class="confirm-box">
+    <h2 id="confirmTitle">Emin misiniz?</h2>
+    <p id="confirmText">İşlem geri alınacak.</p>
+    <div class="confirm-actions">
+      <button class="btn secondary" id="confirmCancelBtn" onclick="closeConfirm()">Vazgeç</button>
+      <button class="btn danger" id="confirmOkBtn">Evet, Onayla</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast Alanı -->
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+// Web App Manifest Entegrasyonu
+const manifestData = {
+  "name": "Evral Dağıtım",
+  "short_name": "Evral",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#111827",
+  "theme_color": "#111827",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🍰</text></svg>",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml"
+    }
+  ]
+};
+document.getElementById('manifestPlaceholder').setAttribute('href', 'data:application/manifest+json;charset=utf-8,' + encodeURIComponent(JSON.stringify(manifestData)));
+
+// Service Worker Kaydı (PWA Çevrimdışı Desteği)
+if ('serviceWorker' in navigator) {
+  const swCode = `
+    self.addEventListener('install', e => self.skipWaiting());
+    self.addEventListener('activate', e => e.waitUntil(clients.claim()));
+    self.addEventListener('fetch', e => e.respondWith(fetch(e.request).catch(() => caches.match(e.request))));
+  `;
+  const blob = new Blob([swCode], { type: 'application/javascript' });
+  navigator.serviceWorker.register(URL.createObjectURL(blob)).catch(()=>{});
+}
+
+const KEY = 'patli_dagitim_v1';
+const TYPES = ['Mis Fırın', 'Çağdaş Market', 'Diğer'];
+const PRODUCTS = {
+  'Mis Fırın': [
+    {name:'Tulumba',unit:'kg'},
+    {name:'Ballı Ballı',unit:'adet'}
+  ],
+  'Çağdaş Market': [
+    {name:'Ekmek Kadayıfı',unit:'adet'},
+    {name:'Şambali',unit:'adet'}
+  ],
+  'Diğer': [
+    {name:'Tulumba',unit:'kg'},
+    {name:'Ballı Ballı',unit:'adet'},
+    {name:'Ekmek Kadayıfı',unit:'adet'},
+    {name:'Şambali',unit:'adet'},
+    {name:'Lokma',unit:'kg'}
+  ]
+};
+
+let state = load();
+let editingId = null;
+let productDraft = [];
+
+// Bildirim (Toast) Mesajı Gösterici
+function showToast(msg, icon = 'ℹ️') {
+  const container = document.getElementById('toastContainer');
+  const toast = document.createElement('div');
+  toast.className = 'toast';
+  toast.innerHTML = `<span>${icon}</span><span>${esc(msg)}</span>`;
+  container.appendChild(toast);
+  setTimeout(() => toast.classList.add('show'), 10);
+  setTimeout(() => {
+    toast.classList.remove('show');
+    setTimeout(() => toast.remove(), 300);
+  }, 2800);
+}
+
+// Özel Confirm Popup Fonksiyonu
+function openConfirm(title, text, onYes, danger = true) {
+  document.getElementById('confirmTitle').textContent = title || 'Emin misiniz?';
+  document.getElementById('confirmText').textContent = text;
+  const okBtn = document.getElementById('confirmOkBtn');
+  okBtn.className = danger ? 'btn danger' : 'btn green';
+  okBtn.onclick = () => { closeConfirm(); onYes(); };
+  document.getElementById('confirmBg').classList.add('open');
+}
+function closeConfirm() { document.getElementById('confirmBg').classList.remove('open'); }
+
+function applyTheme() {
+  const dark = localStorage.getItem('patli_theme') === 'dark';
+  document.documentElement.classList.toggle('dark', dark);
+  const btn = document.getElementById('themeBtn');
+  if(btn) { btn.textContent = dark ? '☀️' : '🌙'; btn.title = dark ? 'Açık tema' : 'Koyu tema'; }
+}
+function toggleTheme() {
+  const dark = document.documentElement.classList.contains('dark');
+  localStorage.setItem('patli_theme', dark ? 'light' : 'dark');
+  applyTheme();
+}
+
+function load() {
+  try { return JSON.parse(localStorage.getItem(KEY)) || {deliveries:[], collections:[]} }
+  catch(e) { return {deliveries:[], collections:[]} }
+}
+function save() { localStorage.setItem(KEY, JSON.stringify(state)); }
+function todayKey(d = new Date()) { return d.toISOString().slice(0,10); }
+function money(n) { return new Intl.NumberFormat('tr-TR', {style:'currency', currency:'TRY', maximumFractionDigits:2}).format(Number(n)||0); }
+function esc(s) { return String(s??'').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m])); }
+function fmtDateTime(iso) {
+  if(!iso) return '-';
+  return new Date(iso).toLocaleString('tr-TR', {dateStyle:'short', timeStyle:'short'});
+}
+function customerKey(type, detail) { return (type + '|' + detail.trim().toLocaleLowerCase('tr-TR')).replace(/\s+/g, ' '); }
+function dueOf(d) { return Math.max(0, Number(d.due)||0); }
+function paidOf(d) { return Math.max(0, Number(d.paid)||0); }
+function remainingOf(d) { return Math.max(0, dueOf(d) - paidOf(d)); }
+
+function netDebtForCustomer(key) {
+  const deliveryDebt = state.deliveries.filter(d => d.customerKey === key).reduce((a,d) => a + remainingOf(d), 0);
+  const collections = state.collections.filter(c => c.customerKey === key).reduce((a,c) => a + Number(c.amount||0), 0);
+  return Math.max(0, deliveryDebt - collections);
+}
+function allCustomerNames() {
+  const map = new Map();
+  state.deliveries.forEach(d => map.set(d.customerKey, {key:d.customerKey, type:d.type, detail:d.detail}));
+  return [...map.values()];
+}
+
+document.getElementById('todayText').textContent = new Date().toLocaleDateString('tr-TR', {weekday:'long', day:'numeric', month:'long', year:'numeric'});
+
+function showScreen(name) {
+  document.querySelectorAll('.screen').forEach(x => x.classList.remove('active'));
+  document.getElementById('screen' + name).classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(x => x.classList.toggle('active', x.dataset.screen === name));
+  if(name === 'Today') renderToday();
+  if(name === 'Debts') renderDebts();
+  if(name === 'History') renderHistory();
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function openNewStop() {
+  editingId = null; productDraft = [];
+  openStopModal();
+}
+function openEditStop(id) {
+  const d = state.deliveries.find(x => x.id === id); if(!d) return;
+  editingId = id; productDraft = d.products.map(x => ({...x}));
+  openStopModal(d);
+}
+function openStopModal(d = null) {
+  const type = d?.type || 'Mis Fırın';
+  document.getElementById('modalTitle').textContent = d ? 'Durağı düzenle' : 'Yeni durak';
+  document.getElementById('modalBody').innerHTML = `
+    <div class="field"><label>Firma türü</label>
+      <div class="firm-buttons">
+        ${TYPES.map(t => `<button type="button" class="${t===type?'selected':''}" onclick="chooseType('${t}')">${t}</button>`).join('')}
+      </div>
+    </div>
+    <div class="field"><label>Detay bilgi</label><input id="detail" placeholder="Örn. Albayrak Şubesi" value="${esc(d?.detail||'')}"></div>
+    <div class="field">
+      <label>Tatlılar</label>
+      <div class="products" id="productRows"></div>
+      <button type="button" class="btn secondary small" style="margin-top:8px" onclick="addProductRow()">＋ Tatlı ekle</button>
+    </div>
+    <div class="grid">
+      <div class="field"><label>Alınması gereken ödeme (opsiyonel)</label><input id="due" type="number" min="0" step="0.01" inputmode="decimal" placeholder="₺ 0" value="${d?.due||''}"></div>
+      <div class="field"><label>Ödeme durumu</label>
+        <div class="payment-options">
+          <button type="button" id="payNo" class="pay-choice ${!d||!d.paid?'selected':''}" onclick="setPayMode(false)">Alınmadı</button>
+          <button type="button" id="payYes" class="pay-choice ${d?.paid?'selected':''}" onclick="setPayMode(true)">Alındı</button>
+        </div>
+      </div>
+    </div>
+    <div id="paidWrap" class="${d?.paid?'':'hidden'} field"><label>Alınan ödeme</label><input id="paid" type="number" min="0" step="0.01" inputmode="decimal" placeholder="₺ 0" value="${d?.paid||''}"></div>
+    <div id="remainingPreview" class="alert">Kalan ödeme: ${money(remainingOf(d||{due:0,paid:0}))}</div>
+    <button class="btn primary full" onclick="saveStop()">✓ Kaydet</button>
+    ${d ? `<button class="btn danger full" style="margin-top:8px" onclick="deleteStop('${d.id}')">Durağı sil</button>` : ''}
+  `;
+  document.getElementById('modalBg').classList.add('open');
+  window.currentType = type;
+  if(!productDraft.length) productDraft = [{name:PRODUCTS[type][0].name, qty:''}];
+  renderProductRows();
+  updateRemainingPreview();
+}
+
+function chooseType(type) {
+  window.currentType = type;
+  document.querySelectorAll('.firm-buttons button').forEach(b => b.classList.toggle('selected', b.textContent === type));
+  productDraft = productDraft.filter(p => PRODUCTS[type].some(x => x.name === p.name));
+  if(!productDraft.length) productDraft = [{name:PRODUCTS[type][0].name, qty:''}];
+  renderProductRows();
+}
+function addProductRow() { productDraft.push({name:PRODUCTS[window.currentType][0].name, qty:''}); renderProductRows(); }
+function renderProductRows() {
+  const wrap = document.getElementById('productRows'); if(!wrap) return;
+  const options = PRODUCTS[window.currentType];
+  wrap.innerHTML = productDraft.map((p,i) => {
+    const obj = options.find(x => x.name === p.name) || options[0];
+    return `<div class="product-row">
+      <select onchange="productDraft[${i}].name=this.value;renderProductRows()">
+        ${options.map(o => `<option ${o.name===p.name?'selected':''}>${o.name}</option>`).join('')}
+      </select>
+      <input type="number" min="0" step="${obj.unit==='kg'?'0.01':'1'}" inputmode="decimal" placeholder="Miktar" value="${esc(p.qty)}" oninput="productDraft[${i}].qty=this.value">
+      <button class="remove" type="button" onclick="productDraft.splice(${i},1);renderProductRows()">×</button>
+    </div>`;
+  }).join('');
+}
+
+function setPayMode(yes) {
+  document.getElementById('payYes').classList.toggle('selected', yes);
+  document.getElementById('payNo').classList.toggle('selected', !yes);
+  document.getElementById('paidWrap').classList.toggle('hidden', !yes);
+  if(!yes) document.getElementById('paid').value = '';
+  updateRemainingPreview();
+}
+function updateRemainingPreview() {
+  const due = Number(document.getElementById('due')?.value||0), paid = Number(document.getElementById('paid')?.value||0);
+  const el = document.getElementById('remainingPreview'); if(el) el.textContent = 'Kalan ödeme: ' + money(Math.max(0, due - paid));
+}
+document.addEventListener('input', e => { if(e.target.id === 'due' || e.target.id === 'paid') updateRemainingPreview(); });
+
+function saveStop() {
+  const type = window.currentType || 'Mis Fırın';
+  const detail = document.getElementById('detail').value.trim();
+  const products = productDraft.filter(p => Number(p.qty) > 0).map(p => {
+    const info = PRODUCTS[type].find(x => x.name === p.name);
+    return {name:p.name, qty:Number(p.qty), unit:info.unit}
+  });
+  if(!detail) { showToast('Lütfen detay bilgiye şube / mağaza adını yazın.', '⚠️'); return; }
+  if(!products.length) { showToast('En az bir tatlı ve miktar girin.', '⚠️'); return; }
+  
+  const paidMode = document.getElementById('payYes').classList.contains('selected');
+  const due = Math.max(0, Number(document.getElementById('due').value||0));
+  const paid = paidMode ? Math.min(due, Math.max(0, Number(document.getElementById('paid').value||0))) : 0;
+  const now = new Date().toISOString();
+  
+  if(editingId) {
+    const d = state.deliveries.find(x => x.id === editingId);
+    Object.assign(d, {type, detail, customerKey:customerKey(type,detail), products, due, paid});
+    showToast('Durak başarıyla güncellendi.', '✓');
+  } else {
+    state.deliveries.push({id:crypto.randomUUID(), date:todayKey(), type, detail, customerKey:customerKey(type,detail), products, due, paid, delivered:false, deliveredAt:null, createdAt:now});
+    showToast('Yeni durak eklendi.', '🎉');
+  }
+  save(); closeModal(); renderToday();
+}
+
+function markDelivered(id) {
+  const d = state.deliveries.find(x => x.id === id); if(!d) return;
+  d.delivered = true; d.deliveredAt = new Date().toISOString(); save(); renderToday();
+  showToast('Teslimat tamamlandı olarak işaretlendi.', '✓');
+}
+
+function undoDelivered(id) {
+  const d = state.deliveries.find(x => x.id === id); if(!d) return;
+  openConfirm(
+    'Teslimatı Geri Al',
+    'Bu teslimat “Teslim edilmedi” durumuna geri alınacak. Tarih ve saat bilgisi de silinecek.',
+    () => {
+      d.delivered = false;
+      d.deliveredAt = null;
+      save(); renderToday(); renderHistory();
+      showToast('Teslimat durumu geri alındı.', '↩');
+    }
+  );
+}
+
+function deleteStop(id) {
+  openConfirm(
+    'Durağı Sil',
+    'Bu durağı silmek istediğinize emin misiniz? Bu işlem geri alınamaz.',
+    () => {
+      state.deliveries = state.deliveries.filter(d => d.id !== id);
+      save(); closeModal(); renderToday();
+      showToast('Durak silindi.', '🗑️');
+    }
+  );
+}
+
+function closeModal() { document.getElementById('modalBg').classList.remove('open'); }
+
+function renderToday() {
+  const rows = state.deliveries.filter(d => d.date === todayKey()).sort((a,b) => Number(a.delivered) - Number(b.delivered));
+  document.getElementById('statStops').textContent = rows.length;
+  document.getElementById('statDone').textContent = rows.filter(d => d.delivered).length;
+  document.getElementById('statDue').textContent = money(rows.reduce((a,d) => a + remainingOf(d), 0));
+  const wrap = document.getElementById('todayList');
+  if(!rows.length) { wrap.innerHTML = `<div class="card empty">Bugün henüz durak eklenmedi.<br><br>Sabah ilk durağı eklemek için aşağıdaki butona basın.</div>`; return; }
+  wrap.innerHTML = rows.map(d => `
+    <div class="card stop-card">
+      <div class="stop-top">
+        <div><div class="stop-name">${esc(d.detail)}</div><div class="meta">${esc(d.type)}</div></div>
+        <span class="badge ${d.delivered?'done':''}">${d.delivered?'✓ Teslim edildi':'Bekliyor'}</span>
+      </div>
+      <div class="product-summary">${d.products.map(p => `<div class="product-line"><span>${esc(p.name)}</span><b>${p.qty} ${p.unit}</b></div>`).join('')}</div>
+      <div class="meta">Alınması gereken: <b>${money(d.due)}</b> · Alınan: <b>${money(d.paid)}</b> · Kalan: <b>${money(remainingOf(d))}</b></div>
+      ${d.delivered ? `<div class="meta" style="margin-top:6px">Teslim zamanı: ${fmtDateTime(d.deliveredAt)}</div>` : ''}
+      <div class="stop-actions">
+        ${!d.delivered
+          ? `<button class="btn green" onclick="markDelivered('${d.id}')">✓ Teslim edildi</button>`
+          : `<button class="btn secondary" onclick="undoDelivered('${d.id}')">↩ Teslimatı geri al</button>`}
+        <button class="btn secondary small" onclick="openEditStop('${d.id}')">Düzenle</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function renderDebts() {
+  const customers = allCustomerNames().map(c => ({...c, debt:netDebtForCustomer(c.key)})).filter(c => c.debt > 0.005).sort((a,b) => b.debt - a.debt);
+  document.getElementById('debtTotal').textContent = money(customers.reduce((a,c) => a + c.debt, 0));
+  const wrap = document.getElementById('debtList');
+  if(!customers.length) { wrap.innerHTML = `<div class="card empty">Bekleyen alacak yok. 🎉</div>`; return; }
+  wrap.innerHTML = customers.map(c => `
+    <div class="card debt-row">
+      <div class="debt-head"><span>${esc(c.detail)}</span><span>${money(c.debt)}</span></div>
+      <div class="debt-sub">${esc(c.type)} · Toplam kalan alacak</div>
+      <button class="btn green small" onclick="openCollection('${esc(c.key)}')">Para tahsil et</button>
+    </div>
+  `).join('');
+}
+
+function openCollection(key) {
+  const c = allCustomerNames().find(x => x.key === key); if(!c) return;
+  document.getElementById('modalTitle').textContent = 'Tahsilat';
+  document.getElementById('modalBody').innerHTML = `
+    <div class="card" style="box-shadow:none;margin:0 0 12px;padding:12px;background:var(--bg)">
+      <b>${esc(c.detail)}</b><div class="meta">${esc(c.type)}</div>
+      <div style="margin-top:6px">Toplam kalan: <b>${money(netDebtForCustomer(key))}</b></div>
+    </div>
+    <div class="field"><label>Alınan para</label><input id="collectionAmount" type="number" min="0" step="0.01" inputmode="decimal" placeholder="₺ 0"></div>
+    <button class="btn green full" onclick="saveCollection('${esc(key)}')">✓ Tahsilatı kaydet</button>
+  `;
+  document.getElementById('modalBg').classList.add('open');
+}
+
+function saveCollection(key) {
+  const amount = Math.max(0, Number(document.getElementById('collectionAmount').value||0));
+  if(!amount) { showToast('Lütfen alınan para miktarını girin.', '⚠️'); return; }
+  const debt = netDebtForCustomer(key);
+  
+  const processCollection = () => {
+    state.collections.push({id:crypto.randomUUID(), customerKey:key, amount, date:todayKey(), createdAt:new Date().toISOString()});
+    save(); closeModal(); renderDebts();
+    showToast('Tahsilat kaydedildi.', '💰');
+  };
+
+  if(amount > debt) {
+    openConfirm('Tutar Uyarısı', 'Girilen tutar kalan alacaktan fazla. Yine de kaydetmek istiyor musunuz?', processCollection, false);
+  } else {
+    processCollection();
+  }
+}
+
+function renderHistory() {
+  const filter = document.getElementById('historyFilter');
+  const dates = [...new Set(state.deliveries.map(d => d.date))].sort().reverse();
+  const current = filter.value;
+  filter.innerHTML = `<option value="all">Tüm günler</option>` + dates.map(x => `<option value="${x}">${new Date(x+'T12:00:00').toLocaleDateString('tr-TR')}</option>`).join('');
+  if(dates.includes(current)) filter.value = current;
+  const chosen = filter.value || 'all';
+  const rows = state.deliveries.filter(d => chosen === 'all' || d.date === chosen).sort((a,b) => String(b.createdAt).localeCompare(String(a.createdAt)));
+  const wrap = document.getElementById('historyList');
+  if(!rows.length) { wrap.innerHTML = `<div class="card empty">Henüz geçmiş kaydı yok.</div>`; return; }
+  wrap.innerHTML = rows.map(d => `
+    <div class="card">
+      <div class="stop-top"><div><b>${esc(d.detail)}</b><div class="meta">${esc(d.type)} · ${d.date}</div></div><span class="badge ${d.delivered?'done':''}">${d.delivered?'Teslim edildi':'Teslim edilmedi'}</span></div>
+      <div class="product-summary">${d.products.map(p => `<div class="product-line"><span>${esc(p.name)}</span><b>${p.qty} ${p.unit}</b></div>`).join('')}</div>
+      <div class="meta">Gereken ${money(d.due)} · Alınan ${money(d.paid)} · Kalan ${money(remainingOf(d))}</div>
+      ${d.deliveredAt ? `<div class="meta">Teslim: ${fmtDateTime(d.deliveredAt)}</div>` : ''}
+    </div>
+  `).join('');
+}
+
+function exportBackup() {
+  const data = JSON.stringify(state, null, 2);
+  const blob = new Blob([data], {type:'application/json'});
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'evral-dagitim-yedek-' + todayKey() + '.json'; a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  showToast('Yedek indirildi.', '⬇️');
+}
+
+function importBackup(e) {
+  const file = e.target.files[0]; if(!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    try {
+      const incoming = JSON.parse(reader.result);
+      if(!incoming || !Array.isArray(incoming.deliveries)) throw new Error();
+      openConfirm(
+        'Yedek Yükle',
+        'Mevcut verilerin üzerine bu yedek yüklenecek. Devam etmek istediğinize emin misiniz?',
+        () => {
+          state = {deliveries:incoming.deliveries, collections:Array.isArray(incoming.collections)?incoming.collections:[]};
+          save(); renderToday();
+          showToast('Yedek başarıyla yüklendi.', '✓');
+        }
+      );
+    } catch(err) { showToast('Geçersiz yedek dosyası.', '❌'); }
+  };
+  reader.readAsText(file); e.target.value = '';
+}
+
+// İlk açılış
+applyTheme();
+renderToday();
+</script>
+</body>
+</html>
